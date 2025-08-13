@@ -38,9 +38,12 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
           hits.reverse();
         }
       }
-
       data = prepareDataForPlot(fields, hits, config.xaxis, config.yaxis, params);
-
+      if (fields[params.x_axis]){
+          for (let key = 0; key < data.length; key++) {
+              config['xaxis']['ticks'].push([key, data[key]['label']]);
+          }
+      }
       $.plot(elementId, data, config);
     });
   }
@@ -49,7 +52,7 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
     var query = {
       filters: [],
       sort: [],
-      size: 1000
+      size: 50000
     };
 
     if (params.filters) {
@@ -115,6 +118,7 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
           text: {
             mode: "categories",
             tickColor: "rgba(0, 0, 0, 0)",
+            ticks: [],
             tickFormatter: function (value, axis) {
               return value;
             }
@@ -124,7 +128,7 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
         };
 
     config = {
-      yaxis: axisConfigByType[yAxisType],
+      yaxis: 'numeric',
       colors: ['#e41a1c', '#377eb8', '#4daf4a',
                '#984ea3', '#ff7f00', '#ffff33',
                '#a65628', '#f781bf', '#999999']
@@ -137,7 +141,7 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
             show: true,
             label: {
               show: true,
-              threshold: 0.05
+              threshold: 0.5
             }
           }
         },
@@ -149,7 +153,7 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
         },
         tooltip: true,
         tooltipOpts: {
-          content: "%p.0%, %s"
+          content: "%s: %p.0% (%y.0)"
         }
       });
     } else {
@@ -163,7 +167,7 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
         },
         tooltip: true,
         tooltipOpts: {
-          content: "%s | "+params.x_axis+": %x | "+params.y_axis+": %y",
+          content: "%s: %y.0",
           xDateFormat: "%d/%m/%Y",
           yDateFormat: "%d/%m/%Y"
         }
@@ -173,7 +177,6 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
     if (xAxisType) {
       config.xaxis = axisConfigByType[xAxisType];
     }
-
     return config;
   }
 
@@ -197,11 +200,34 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
         if (x === null) {
           return;
         }
-        result[group_by] = result[group_by] || [];
-        result[group_by].push([xParsed, yParsed]);
+        if (params['count_rows']){
+            if (result[group_by]){
+                result[group_by][0][1] = result[group_by][0][1] + 1;
+            }else{
+                result[group_by] = result[group_by] || [];
+                result[group_by].push([xParsed, 1]);
+            }
+        }else if (typeof yParsed == 'number') {
+            if (typeof yParsed == 'number'){
+                result[group_by] = result[group_by] || [];
+                if (result[group_by].length > 0){
+                    result[group_by][0][1] = result[group_by][0][1] + yParsed;
+                }else{
+                    result[group_by].push([xParsed, yParsed]);
+                }
+            }
+        }else{
+            result[group_by] = result[group_by] || [];
+            result[group_by].push([xParsed, yParsed]);
+        }
       } else {
-        result[group_by] = result[group_by] || 0;
-        result[group_by] = result[group_by] + yParsed;
+        if (params['count_rows'] || typeof yParsed == 'string'){
+            result[group_by] = result[group_by] || 0;
+            result[group_by] = result[group_by] + 1;
+        }else{
+            result[group_by] = result[group_by] || 0;
+            result[group_by] = result[group_by] + yParsed;
+        }
       }
     });
     return result;

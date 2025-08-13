@@ -7,4 +7,10 @@
     form.checkbox('show_legends', label=_("Show groups' legend"),
     value=True, checked=resource_view['show_legends'])
 }}
+
+{{
+    form.checkbox('count_rows', label=_("Count Rows"),
+    value=True, checked=resource_view['count_rows'])
+}}
+
 {% endblock %}

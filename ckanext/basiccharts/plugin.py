@@ -29,7 +29,8 @@ class BaseChart(p.SingletonPlugin):
     def info(self):
         schema = {
             'y_axis': [not_empty],
-            'show_legends': [ignore_missing]
+            'show_legends': [ignore_missing],
+            'count_rows': [ignore_missing]
         }
 
         if self.GROUP_BY_IS_REQUIRED:
@@ -49,6 +50,7 @@ class BaseChart(p.SingletonPlugin):
         resource = data_dict['resource']
         resource_view = data_dict['resource_view']
         resource_view['show_legends'] = bool(resource_view.get('show_legends'))
+        resource_view['count_rows'] = bool(resource_view.get('count_rows'))
 
         fields = _get_fields_without_id(resource)
 
@@ -194,7 +196,7 @@ class BasicGrid(p.SingletonPlugin):
 def _view_data(resource_view):
     data = {
         'resource_id': resource_view['resource_id'],
-        'limit': int(resource_view.get('limit', 100))
+        'limit': 50000
     }
 
     filters = resource_view.get('filters', {})
