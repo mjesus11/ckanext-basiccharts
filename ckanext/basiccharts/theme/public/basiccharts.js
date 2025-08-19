@@ -39,7 +39,7 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
         }
       }
       data = prepareDataForPlot(fields, hits, config.xaxis, config.yaxis, params);
-      if (fields[params.x_axis]){
+      if (fields[params.x_axis] == 'text'){
           for (let key = 0; key < data.length; key++) {
               config['xaxis']['ticks'].push([key, data[key]['label']]);
           }

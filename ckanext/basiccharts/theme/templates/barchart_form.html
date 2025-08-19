@@ -2,13 +2,4 @@
 
 {% block form %}
 {{ super() }}
-{{
-    form.checkbox('horizontal', label=_('Horizontal'),
-    value=True, checked=resource_view['horizontal'])
-}}
-
-{{
-    form.checkbox('count_rows', label=_("Count Rows"),
-    value=True, checked=resource_view['count_rows'])
-}}
 {% endblock %}
