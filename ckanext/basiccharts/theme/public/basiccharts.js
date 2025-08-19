@@ -123,7 +123,11 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
               return value;
             }
           },
-          numeric: {},
+          numeric: {
+            tickDecimals: function formatter(val, axis) {
+              return val.toFixed(axis.tickDecimals);
+            }
+          },
           integer: {}
         };
 
