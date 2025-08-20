@@ -2,4 +2,8 @@
 
 {% block form %}
 {{ super() }}
+{{
+    form.checkbox('horizontal', label=_('Horizontal'),
+    value=True, checked=resource_view['horizontal'])
+}}
 {% endblock %}

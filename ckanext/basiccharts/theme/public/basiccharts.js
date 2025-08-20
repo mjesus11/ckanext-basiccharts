@@ -20,6 +20,14 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
     initPlot(elementId, sortData, _resource, _params);
   };
 
+  function seTticks(data) {
+    var result = [];
+    for (let key = 0; key < data.length; key++) {
+        result.push([key, data[key]['label']]);
+    }
+    return result;
+  }
+
   function initPlot(elementId, sortData, resource, params) {
     var queryParams = generateQueryParams(resource, params);
 
@@ -39,10 +47,11 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
         }
       }
       data = prepareDataForPlot(fields, hits, config.xaxis, config.yaxis, params);
+
       if (fields[params.x_axis] == 'text'){
-          for (let key = 0; key < data.length; key++) {
-              config['xaxis']['ticks'].push([key, data[key]['label']]);
-          }
+          config['xaxis']['ticks'] = seTticks(data);
+      }else if (params.horizontal) {
+         config['yaxis']['ticks'] = seTticks(data);
       }
       $.plot(elementId, data, config);
     });
@@ -93,6 +102,7 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
           bars: {
             show: true,
             horizontal: params.horizontal,
+            //horizontal: true,
             align: "center",
             barWidth: barWidth
           }
@@ -132,7 +142,8 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
         };
 
     config = {
-      yaxis: 'numeric',
+      //yaxis: 'numeric',
+      yaxis: axisConfigByType[yAxisType],
       colors: ['#e41a1c', '#377eb8', '#4daf4a',
                '#984ea3', '#ff7f00', '#ffff33',
                '#a65628', '#f781bf', '#999999']
