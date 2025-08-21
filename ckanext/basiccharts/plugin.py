@@ -35,8 +35,10 @@ class BaseChart(p.SingletonPlugin):
 
         if self.GROUP_BY_IS_REQUIRED:
             schema['group_by'] = [not_empty]
+            schema['aux_label'] = [not_empty]
         else:
             schema['group_by'] = [ignore_missing]
+            schema['aux_label'] = [ignore_missing]
 
         return {'icon': 'bar-chart',
                 'filterable': True,

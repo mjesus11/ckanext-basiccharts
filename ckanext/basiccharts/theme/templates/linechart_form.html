@@ -2,9 +2,17 @@
 
 {% block form %}
 {{ super() }}
+
+{% set aux_fields = [{'value': ''}] + fields %}
+
 {{
     form.select('x_axis', label=_('X Axis'), options=fields,
         selected=resource_view['x_axis'], is_required=true)
+}}
+
+{{
+    form.select('aux_label', label=_('Auxiliary label'), options=aux_fields,
+        selected=resource_view['aux_label'], is_required=group_by_is_required)
 }}
 
 {{

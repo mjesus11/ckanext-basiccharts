@@ -23,7 +23,12 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
   function seTticks(data) {
     var result = [];
     for (let key = 0; key < data.length; key++) {
-        result.push([key, data[key]['label']]);
+        for (let row=0; row < data[key].data[0].length; row++){
+            if (typeof(data[key].data[0][row]) == 'string'){
+                result.push([key, data[key].data[0][row]]);
+                break;
+            }
+        }
     }
     return result;
   }
@@ -102,17 +107,24 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
           bars: {
             show: true,
             horizontal: params.horizontal,
-            //horizontal: true,
             align: "center",
             barWidth: barWidth
           }
         };
 
     return $.map(grouppedData, function(data, label) {
-      var dataForPlot = {
-        label: label,
-        data: data
-      };
+      var dataForPlot = null;
+      if (xAxis){
+          dataForPlot = {
+            label: data[0].label,
+            data: [data[0].data]
+          };
+      }else{
+          dataForPlot = {
+            label: label,
+            data: data
+          };
+      }
       dataForPlot[params.chart_type] = chartTypes[params.chart_type];
 
       return dataForPlot;
@@ -141,9 +153,23 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
           integer: {}
         };
 
+    let yaxisType = axisConfigByType[yAxisType];
+    let contentLabel =  "%x %y.0";
+
+    if (!params.horizontal){
+        yaxisType = 'numeric'
+    }
+
+    if (params.aux_label && params.horizontal){
+        contentLabel = "%y : %x.0 (%s)";
+    }else if (!params.aux_label && params.horizontal){
+        contentLabel = "%y : %x.0";
+    }else if (params.aux_label && !params.horizontal && !params.count_rows){
+        contentLabel =  "%x %y.0 (%s)";
+    }
+
     config = {
-      //yaxis: 'numeric',
-      yaxis: axisConfigByType[yAxisType],
+      yaxis: yaxisType,
       colors: ['#e41a1c', '#377eb8', '#4daf4a',
                '#984ea3', '#ff7f00', '#ffff33',
                '#a65628', '#f781bf', '#999999']
@@ -182,7 +208,7 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
         },
         tooltip: true,
         tooltipOpts: {
-          content: "%s: %y.0",
+          content: contentLabel,
           xDateFormat: "%d/%m/%Y",
           yDateFormat: "%d/%m/%Y"
         }
@@ -217,23 +243,41 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
         }
         if (params['count_rows']){
             if (result[group_by]){
-                result[group_by][0][1] = result[group_by][0][1] + 1;
+                result[group_by][0].data[1] = result[group_by][0].data[1] + 1;
+                result[group_by][0].label = result[group_by][0].data[1];
             }else{
                 result[group_by] = result[group_by] || [];
-                result[group_by].push([xParsed, 1]);
+                result[group_by].push({'label': 1, 'data': [xParsed, 1]});
             }
         }else if (typeof yParsed == 'number') {
             if (typeof yParsed == 'number'){
+                let label = null;
+
+                if (params.aux_label){
+                    label = record[params.aux_label];
+                }
                 result[group_by] = result[group_by] || [];
+
                 if (result[group_by].length > 0){
-                    result[group_by][0][1] = result[group_by][0][1] + yParsed;
+                    if (label){
+                        if (typeof(label) == 'number'){
+                            result[group_by][0].label = result[group_by][0].label + label;
+                        }else{
+                            result[group_by][0].label = label;
+                        }
+                    }
+                    result[group_by][0].data[1] = result[group_by][0].data[1] + yParsed;
                 }else{
-                    result[group_by].push([xParsed, yParsed]);
+                    result[group_by].push({'label': label, 'data': [xParsed, yParsed]});
                 }
             }
         }else{
+            let label = null;
+            if (params.aux_label){
+                label = record[params.aux_label];
+            }
             result[group_by] = result[group_by] || [];
-            result[group_by].push([xParsed, yParsed]);
+            result[group_by].push({'label': label, 'data': [xParsed, yParsed]});
         }
       } else {
         if (params['count_rows'] || typeof yParsed == 'string'){
