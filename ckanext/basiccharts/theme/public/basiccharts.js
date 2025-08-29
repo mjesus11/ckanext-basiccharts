@@ -111,24 +111,31 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
             barWidth: barWidth
           }
         };
+    var tempLinePlot = [{ "label": null, "data": [] }];
+    var dataForPlot = $.map(grouppedData, function(data, label) {
+      let dataPlot = null;
 
-    return $.map(grouppedData, function(data, label) {
-      var dataForPlot = null;
       if (xAxis){
-          dataForPlot = {
-            label: data[0].label,
-            data: [data[0].data]
-          };
+         if (params.chart_type == 'lines') {
+             tempLinePlot[0].data.push(data[0].data);
+             dataPlot = tempLinePlot;
+         }else{
+             dataPlot = {
+                label: data[0].label,
+                data: [data[0].data]
+             };
+         }
       }else{
-          dataForPlot = {
+          dataPlot = {
             label: label,
             data: data
           };
       }
-      dataForPlot[params.chart_type] = chartTypes[params.chart_type];
+      dataPlot[params.chart_type] = chartTypes[params.chart_type];
 
-      return dataForPlot;
+      return dataPlot;
     });
+    return dataForPlot;
   }
 
   function plotConfig(fields, params) {
