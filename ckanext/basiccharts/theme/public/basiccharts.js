@@ -20,13 +20,21 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
     initPlot(elementId, sortData, _resource, _params);
   };
 
-  function seTticks(data) {
+  function seTticks(data, params) {
     var result = [];
-    for (let key = 0; key < data.length; key++) {
-        for (let row=0; row < data[key].data[0].length; row++){
-            if (typeof(data[key].data[0][row]) == 'string'){
-                result.push([key, data[key].data[0][row]]);
-                break;
+
+    if (params.chart_type == 'lines'){
+        for (let x=0; x < data[0].data.length; x++){
+            result.push([x, data[0].data[x][0]]);
+        }
+    }
+    else{
+        for (let key = 0; key < data.length; key++) {
+            for (let row=0; row < data[key].data[0].length; row++){
+                if (typeof(data[key].data[0][row]) == 'string' && params.chart_type != 'lines'){
+                    result.push([key, data[key].data[0][row]]);
+                    break;
+                }
             }
         }
     }
@@ -54,9 +62,9 @@ this.ckan.views.basiccharts = this.ckan.views.basiccharts || {};
       data = prepareDataForPlot(fields, hits, config.xaxis, config.yaxis, params);
 
       if (fields[params.x_axis] == 'text'){
-          config['xaxis']['ticks'] = seTticks(data);
+          config['xaxis']['ticks'] = seTticks(data, params);
       }else if (params.horizontal) {
-         config['yaxis']['ticks'] = seTticks(data);
+         config['yaxis']['ticks'] = seTticks(data, params);
       }
       $.plot(elementId, data, config);
     });
