@@ -29,6 +29,7 @@ class BaseChart(p.SingletonPlugin):
     def info(self):
         schema = {
             'y_axis': [not_empty],
+            'generated': [ignore_missing],
             'show_legends': [ignore_missing],
             'count_rows': [ignore_missing]
         }
@@ -53,6 +54,7 @@ class BaseChart(p.SingletonPlugin):
         resource_view = data_dict['resource_view']
         resource_view['show_legends'] = bool(resource_view.get('show_legends'))
         resource_view['count_rows'] = bool(resource_view.get('count_rows'))
+        resource_view['generated'] = bool(resource_view.get('generated'))
 
         fields = _get_fields_without_id(resource)
 
